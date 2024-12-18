@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>All Tasks</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header>
+    <h1>All Tasks</h1>
+    <hr>
+    <div class="menu-container">
+        <div class="burger-menu" onclick="toggleMenu()">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+
+        <nav id="nav" class="nav">
+            <ul>
+                <li><a  href="/profile">Profile</a></li>
+                <li><a href="/tasks/all">Tasks</a></li>
+                <li><a href="/sendMail">Send email</a></li>
+            </ul>
+        </nav>
+    </div>
+    <hr>
+</header>
+
+<a href="/tasks/create" class="btn">Create Task</a>
+<section>
+    <form th:action="@{/tasks/all}" method="get">
+        <input type="text" name="search" th:value="${search}" placeholder="Search tasks">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Display Tasks -->
+    <table>
+        <thead>
+        <tr>
+            <th>
+                Task Name
+            </th>
+            <th>
+                Task Description
+            </th>
+            <th>
+                <a th:href="@{/tasks/all(page=${tasksPage.number}, search=${search}, sortBy='priority', direction=${direction == 'asc' ? 'desc' : 'asc'})}">
+                    Priority
+                    <span th:if="${sortBy == 'priority' and direction == 'asc'}">↑</span>
+                    <span th:if="${sortBy == 'priority' and direction == 'desc'}">↓</span>
+                </a>
+            </th>
+            <th>
+                <a th:href="@{/tasks/all(page=${tasksPage.number}, search=${search}, sortBy='creationDate', direction=${direction == 'asc' ? 'desc' : 'asc'})}">
+                    Created
+                    <span th:if="${sortBy == 'creationDate' and direction == 'asc'}">↑</span>
+                    <span th:if="${sortBy == 'creationDate' and direction == 'desc'}">↓</span>
+                </a>
+            </th>
+            <th>
+                <a th:href="@{/tasks/all(page=${tasksPage.number}, search=${search}, sortBy='dueDate', direction=${direction == 'asc' ? 'desc' : 'asc'})}">
+                    Due
+                    <span th:if="${sortBy == 'dueDate' and direction == 'asc'}">↑</span>
+                    <span th:if="${sortBy == 'dueDate' and direction == 'desc'}">↓</span>
+                </a>
+            </th>
+
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="task : ${tasksPage.content}">
+            <td th:text="${task.name}"></td>
+            <td th:text="${task.task_text}"></td>
+            <td th:text="${task.priority}"></td>
+            <td th:text="${task.creationDate}"></td>
+            <td th:text="${task.dueDate}"></td>
+            <td>
+                <a th:href="@{/tasks/update/{id}(id=${task.id})}">Edit</a> |
+                <a th:href="@{/tasks/delete/{id}(id=${task.id})}" onclick="return confirm('Are you sure?')">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <a th:href="@{/tasks/all(page=${tasksPage.number-1}, search=${search}, sortBy=${sortBy}, direction=${direction})}"
+           th:if="${tasksPage.hasPrevious()}">Previous</a>
+        <span>Page <span th:text="${tasksPage.number + 1}"></span> of <span th:text="${tasksPage.totalPages}"></span></span>
+        <a th:href="@{/tasks/all(page=${tasksPage.number+1}, search=${search}, sortBy=${sortBy}, direction=${direction})}"
+           th:if="${tasksPage.hasNext()}">Next</a>
+    </div>
+
+    <!-- No tasks message -->
+    <div th:if="${tasksPage == null or #lists.isEmpty(tasksPage.content)}">
+        <p>No tasks available.</p>
+    </div>
+</section>
+
+</body>
+</html>
+
